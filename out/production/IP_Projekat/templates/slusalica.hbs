@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Shop Item - Start Bootstrap Template</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="/css/shop-item.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container">
+        <a class="navbar-brand" href="/">Pocetna</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive"
+                aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+            <ul class="navbar-nav ml-auto">
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Page Content -->
+<div class="container">
+
+    <div class="row">
+
+
+        <!-- /.col-lg-3 -->
+
+        <div class="mx-auto col-lg-9">
+
+            <div class="align-content-center row mb-4">
+                <div id="prikazSlike" class="row">
+                    {{#each slikeSlusalica}}
+                        <div class="col-lg-4 col-md-6 mb-4">
+                            <div class="card h-100">
+                                <img class="card-img-top" src="/images/{{this}}.png" alt="{{this}}">
+                                <div class="card-footer">
+                                    <button type="button" onclick="ObrisiSliku(this)" id="obrisiSliku"
+                                            data-id="{{this}}" class="text-muted">Obrisi sliku
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    {{/each}}
+                </div>
+                <form class="row list-group mb-2 mx-auto w-100" id="form" action="/api/azuriranjeSlika" method="post"
+                      enctype="multipart/form-data">
+                    <div class="col-md-12 text-center list-group-item mx-auto">
+                        <h5>Izaberi Sliku</h5>
+                        <input type="file" id="dodajSliku" class="w-100"></input>
+                        <button type="submit" id="uploduj" data-id="{{ean}}" class="button w-100">Uploduj</button>
+                    </div>
+
+                </form>
+
+
+                {{#each atributivrednost}}
+
+                    <div class="input-group container-fluid mb-1 mx-auto  ">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="inputGroup-sizing-default">{{this.atribut}}</span>
+                        </div>
+                        <input id="unos" type="text" data-attribute="{{this.atribut}}" class="form-control"
+                               aria-label="Default" aria-describedby="inputGroup-sizing-default"
+                               value="{{this.vrednost}}">
+                    </div>
+                {{/each}}
+                <div class="row mx-auto w-100">
+                    <div class="container-fluid">
+                        <button id="unosD" type="button" onclick="DodajVrednosti()" data-id="{{ean}}"
+                                class="w-100 h-100 btn-info">
+                            Azuriraj
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+<!-- /.container -->
+
+<!-- Footer -->
+<footer class="py-5 bg-dark">
+    <div class="container">
+        <p class="m-0 text-center text-white">Copyright &copy; Your Website 2019</p>
+    </div>
+    <!-- /.container -->
+</footer>
+
+<!-- Bootstrap core JavaScript -->
+<script src="/vendor/jquery/jquery.min.js"></script>
+<script src="/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script>
+
+    let slika = document.querySelectorAll("#obrisiSliku");
+
+    function Provera(elemnti) {
+        for (let t of elemnti) {
+            if (t.getAttribute("data-attribute").trim().toLowerCase() === "popust") {
+                if (isNaN(t.value)) {
+                    alert("Vrednost u polje 'Popust' treba da bude broj")
+                    return false;
+                }
+            }
+            if (t.getAttribute("data-attribute").trim().toLowerCase() === "ocena") {
+
+                if (isNaN(t.value)) {
+                    alert("Vrednost u polje 'Ocena' treba da bude broj")
+                    return false;
+                }
+            }
+            if (t.getAttribute("data-attribute").trim().toLowerCase() === "cena") {
+
+                if (isNaN(t.value)) {
+                    alert("Vrednost u polje 'Cena' treba da bude broj")
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    document.querySelector("#form").addEventListener("submit", function (e) {
+        e.preventDefault();
+        DodajSliku();
+
+    })
+
+    function DodajVrednosti() {
+        let dodaj = document.querySelector("#dodajSliku");
+        let formData = new FormData();
+        let id = document.querySelector("#unosD");
+        let temp = document.querySelectorAll("#unos");
+        if (Provera(temp)) {
+            for (let a of temp) {
+                formData.append(a.getAttribute("data-attribute"), a.value);
+            }
+            formData.append("ean", id.getAttribute("data-id"))
+
+            console.log("kita");
+
+            $.ajax({
+                url: "/api/azuriranjeVrednosti",
+                type: 'POST',
+                data: formData,
+                success: function (data) {
+
+                },
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+        }
+    }
+
+    function DodajSliku() {
+        let dodaj = document.querySelector("#dodajSliku");
+        let formData = new FormData();
+        let id = document.querySelector("#uploduj");
+        formData.append("slika", dodaj.files[0]);
+        formData.append("eans", id.getAttribute("data-id"));
+
+        $.ajax({
+            url: "/api/azuriranjeSlika",
+            type: 'POST',
+            data: formData,
+            success: function (data) {
+                let temp = `<div class="col-lg-4 col-md-6 mb-4">
+                                <div class="card h-100">
+                                    <img class="card-img-top" src="/images/${data}.png" alt="${data}">
+                                </div>
+                                <div class="card-footer">
+                                    <button type="button" onclick="ObrisiSliku(this)" id="obrisiSliku" data-id="${data}" class="text-muted">Obrisi sliku</button>
+                                </div>
+                            </div>`;
+                document.querySelector("#prikazSlike").innerHTML += temp;
+            },
+            cache: false,
+            contentType: false,
+            processData: false
+        });
+    }
+
+    function ObrisiSliku(element) {
+        element.parentNode.parentNode.outerHTML = "";
+
+        $.ajax({
+            url: "/api/obrisiSliku",
+            method: "post",
+            data: {"obrisi": element.getAttribute("data-id")},
+            success: function (reponse) {
+                alert(reponse);
+            }
+        })
+    }
+
+
+</script>
+
+</body>
+
+</html>

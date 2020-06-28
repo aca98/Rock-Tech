@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Rock Tech</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="css/shop-item.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container">
+        <a class="navbar-brand" href="/">Rock Tech</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive"
+                aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+            <ul class="navbar-nav ml-auto">
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Page Content -->
+<div class="container">
+
+    <div class="row">
+
+        <div class="mx-auto col-lg-9">
+            <form id="form" action="/api/dodajSlusalice" method="post" enctype="multipart/form-data" >
+                <div class="row">
+                    <div class="mx-auto text-center col-md-9 col-sm-9 col-lg-9">
+                <label for="myfile">Dodaj sliku</label>
+                <input type="file" id="myfile" name="myfile"/>
+                    </div>
+                </div>
+                <br>
+                {{#each atributi}}
+                    <div class="input-group mb-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="inputGroup-sizing-default">{{this}}</span>
+                        </div>
+                        <input id="unos" type="text" data-attribute="{{this}}" class="form-control" aria-label="Default" aria-describedby="inputGroup-sizing-default">
+                    </div>
+                {{/each}}
+                <div class="row">
+                    <div class="container-fluid">
+                            <button type="submit" class="w-100 h-100 bg-primary text-white">
+                                Dodaj
+                            </button></a>
+                    </div>
+                </div>
+            </form>
+<!--            </div>-->
+            <!-- /.card -->
+
+        </div>
+        <!-- /.col-lg-9 -->
+
+    </div>
+
+</div>
+<!-- /.container -->
+
+<!-- Footer -->
+<footer class="py-5 bg-dark">
+    <div class="container">
+        <p class="m-0 text-center text-white">Copyright &copy; Your Website 2019</p>
+    </div>
+    <!-- /.container -->
+</footer>
+
+<!-- Bootstrap core JavaScript -->
+<script src="vendor/jquery/jquery.min.js"></script>
+<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script>
+
+    function Provera(elemnti)
+    {
+        for (let t of elemnti)
+        {
+            if(t.getAttribute("data-attribute").trim().toLowerCase() === "popust")
+            {
+                if(isNaN(t.value))
+                {
+                    alert("Vrednost u polje 'Popust' treba da bude broj")
+                    return false;
+                }
+            }
+            if(t.getAttribute("data-attribute").trim().toLowerCase() === "ocena")
+            {
+
+                if(isNaN(t.value))
+                {
+                    alert("Vrednost u polje 'Ocena' treba da bude broj")
+                    return false;
+                }
+            }
+            if(t.getAttribute("data-attribute").trim().toLowerCase() === "cena")
+            {
+
+                if(isNaN(t.value))
+                {
+                    alert("Vrednost u polje 'Cena' treba da bude broj")
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+
+    document.querySelector("#form").addEventListener("submit",function (e) {
+        e.preventDefault();
+
+        var formData = new FormData(this);
+        let list = document.querySelectorAll("#unos");
+        if(Provera(list)) {
+            for (let t of list) {
+                formData.append(t.getAttribute("data-attribute"), t.value);
+            }
+            formData.append("file", document.querySelector("#myfile").files[0]);
+            $.ajax({
+                url: "/api/dodajSlusalice",
+                type: 'POST',
+                data: formData,
+                success: function (data) {
+                    alert(data)
+                },
+                cache: false,
+                contentType: false,
+                processData: false
+            });
+        }
+    });
+
+</script>
+
+</body>
+
+</html>

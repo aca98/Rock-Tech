@@ -1,0 +1,285 @@
+<html lang="en">
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Rock Tech</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="css/shop-homepage.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <div class="container">
+        <a class="navbar-brand" href="/">Rock Tech</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive"
+                aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="mx-auto collapse navbar-collapse" id="navbarResponsive">
+            <input oninput="Pretrazi()" id="pretraga" type="text" class="w-100">
+        </div>
+    </div>
+</nav>
+
+<!-- Page Content -->
+<div class="container">
+
+    <div class="row">
+
+        <div class="col-lg-3">
+
+
+            <div class="list-group">
+                <h6 class="list-group-item">Pretraga po Marci</h6>
+                {{#each filterMarke}}
+                    <div class="list-group-item">
+                        <input onchange="filterMarka(this)" type="checkbox" class="list-group-item" value="{{this}}">{{this}}</input>
+                    </div>
+                {{/each}}
+                <h6 class="list-group-item">Pretraga po Sistemu</h6>
+                {{#each filterSistemi}}
+                    <div class=" list-group-item">
+                        <input onchange="filterSitem(this)" type="checkbox" class="list-group-item" value="{{this}}">{{this}}</input>
+                    </div>
+                {{/each}}
+                <h6 class="list-group-item">Pretraga po Oceni</h6>
+
+                <form class="list-group-item form-group">
+                    <input id="filterOcena" onchange="Promeni(this)" type="range" class="form-control-range" min="0"
+                           max="5" value="0"/>
+                    <label id="rangeC" for="formControlRange">0</label>
+                </form>
+
+                <h6 class="list-group-item">Pretraga po Ceni</h6>
+                <form class="list-group-item form-group">
+                    <input id="filterCena" onchange="Promeni(this)" type="range" class="form-control-range" min="-1" max="{{filterCena}}"
+                           value="-1"/>
+                    <label id="rangeC" for="formControlRange">0</label>
+                </form>
+                <button id="filter" class="bg-info text-dark list-group-item">Filtriraj</button>
+            </div>
+
+        </div>
+        <!-- /.col-lg-3 -->
+
+        <div class="col-lg-9">
+
+            <div id="prikaz" class="row">
+                {{#each slusalice}}
+                    <div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card h-100">
+                            <a href="/slusalice/{{this.ean}}"><img class="card-img-top"
+                                                                   src="/images/{{this.slike.0.}}.png"
+                                                                   alt="{{this.ime}}"></a>
+                            <div class="card-body">
+                                <h6 class="card-title">
+                                    <a href="/slusalice/{{this.ean}}">{{this.ime}}</a>
+                                </h6>
+                                <h5>{{this.cena}} RSD</h5>
+                                <p class="card-text"></p>
+                            </div>
+                            <div class="card-footer">
+                                <small id="ocena" class="text-muted" data-ocena="{{this.ocena}}">★ ★ ★ ★ ☆</small>
+                            </div>
+                            <div class="card-footer">
+                                <button class="btn btn-danger text-dark w-100 h-100" data-id="{{this.ean}}" onclick="Obrisi(this)">Obrisi slusalice</button>
+                            </div>
+                        </div>
+                    </div>
+                {{/each}}
+            </div>
+            <!-- /.row -->
+            <div class="row">
+                <div class="container-fluid">
+                    <a href="/dodaj">
+                    <button class="w-100 h-100 bg-primary text-white">
+                        Dodaj Slusalice
+                    </button></a>
+                </div>
+            </div>
+        </div>
+        <!-- /.col-lg-9 -->
+
+    </div>
+    <!-- /.row -->
+
+</div>
+<!-- /.container -->
+
+<!-- Footer -->
+<footer class="py-5 bg-dark">
+    <div class="container">
+        <p class="m-0 text-center text-white">Copyright © Your Website 2019</p>
+    </div>
+    <!-- /.container -->
+</footer>
+
+<!-- Bootstrap core JavaScript -->
+
+<script src="vendor/jquery/jquery.min.js"></script>
+<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script>
+    let marke = ""
+    let sistemi = "";
+    let ocena = -1;
+    let cena = -1;
+
+    function Pretrazi(){
+        let prikaz = document.querySelector("#prikaz");
+        let temp = "";
+        $.ajax({
+            url: "/api/pretraga",
+            method: "POST",
+            data: {"pretraga": document.querySelector("#pretraga").value},
+            success: function (res) {
+
+                prikaz.innerHTML = "";
+                for (let s of res) {
+                    temp += `<div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card h-100">
+                        <a href="/slusalice/${s.ean}"><img class="card-img-top"
+                src="/images/${s.slike[0]}.png"
+                alt="${s.ime}"></a>
+                        <div class="card-body">
+                        <h6 class="card-title">
+                        <a href="/slusalice/${s.ean}">${s.ime}</a>
+                        </h6>
+                        <h5>${s.cena} RSD</h5>
+                        <p class="card-text"></p>
+                        </div>
+                        <div class="card-footer">
+                        <small id="ocena" class="text-muted" data-ocena="${s.ocena}">★ ★ ★ ★ ☆</small>
+                </div>
+                <div class="card-footer">
+                                <button class="button bg-danger text-dark w-100 h-100" data-id="${s.ean}" onclick="Obrisi(this)">Obrisi slusalice</button>
+                            </div>
+                </div>
+                </div>`
+                }
+                prikaz.innerHTML = temp;
+                Ratuj();
+            }});
+    }
+
+    function filterMarka(element)
+    {
+        if(element.checked)
+        {
+            marke += element.value +":";
+        }
+        else
+        {
+            marke = marke.substr(0,marke.indexOf(element.value)) + marke.substr(marke.indexOf(element.value)+element.value.length+1,marke.length)
+        }
+        console.log(marke)
+    }
+    function filterSitem(element)
+    {
+        if(element.checked)
+        {
+            sistemi += element.value +":";
+        }
+        else
+        {
+            sistemi = sistemi.substr(0,sistemi.indexOf(element.value)) + sistemi.substr(sistemi.indexOf(element.value)+element.value.length+1,sistemi.length)
+        }
+        console.log(sistemi)
+
+    }
+
+    function Obrisi(element)
+    {
+        $.ajax({
+            url: "/api/obrisiSlusalicu",
+            method: "POST",
+            data: {"ean": element.getAttribute("data-id")},
+            success: function (res) {
+                alert(res);
+                element.parentNode.parentNode.outerHTML = "";
+            }});
+    }
+
+    document.querySelector("#filter").addEventListener("click", function () {
+        let prikaz = document.querySelector("#prikaz");
+        let temp = "";
+        $.ajax({
+            url: "/api/filtriraj",
+            method: "POST",
+            data: {"marke": marke, "sistemi": sistemi, "ocena": ocena, "cena": cena},
+            success: function (res) {
+
+                prikaz.innerHTML = "";
+                for (let s of res) {
+                    temp += `<div class="col-lg-4 col-md-6 mb-4">
+                        <div class="card h-100">
+                        <a href="/slusalice/${s.ean}"><img class="card-img-top"
+                src="/images/${s.slike[0]}.png"
+                alt="${s.ime}"></a>
+                        <div class="card-body">
+                        <h6 class="card-title">
+                        <a href="/slusalice/${s.ean}">${s.ime}</a>
+                        </h6>
+                        <h5>${s.cena} RSD</h5>
+                        <p class="card-text"></p>
+                        </div>
+                        <div class="card-footer">
+                        <small id="ocena" class="text-muted" data-ocena="${s.ocena}">★ ★ ★ ★ ☆</small>
+                </div>
+                <div class="card-footer">
+                                <button class="button bg-danger text-dark w-100 h-100" data-id="${s.ean}" onclick="Obrisi(this)">Obrisi slusalice</button>
+                            </div>
+                </div>
+                </div>`
+                }
+                prikaz.innerHTML = temp;
+                Ratuj();
+            }
+        })
+    });
+
+
+    function Promeni(element) {
+        if(element.getAttribute("id") === "filterOcena")
+        {
+            ocena = parseInt(element.value);
+            console.log(ocena);
+        }
+        if(element.getAttribute("id") === "filterCena")
+        {
+            cena = parseInt(element.value);
+            console.log(cena);
+        }
+        element.parentNode.querySelector("#rangeC").innerHTML = element.value;
+    }
+
+    function Ratuj() {
+        let temp = document.querySelectorAll("#ocena");
+        for (let e of temp) {
+            e.innerHTML = "";
+            for (let i = 0; i < parseInt(e.getAttribute("data-ocena")); i++) {
+                e.innerHTML += "★ ";
+            }
+            for (let i = parseInt(e.getAttribute("data-ocena")); i < 5; i++) {
+                e.innerHTML += "☆ ";
+            }
+        }
+    }
+    Ratuj();
+
+
+</script>
+
+
+</body>
+</html>
